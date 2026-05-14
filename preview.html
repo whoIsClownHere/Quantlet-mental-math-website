@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quantlet — Focus Zetamac Practice</title>
+  <style>
+    :root {
+      --bg: #030303;
+      --ink: #f4f4f0;
+      --muted: #8d8d8d;
+      --dim: #4c4c4c;
+      --hair: rgba(255, 255, 255, 0.13);
+      --hair-soft: rgba(255, 255, 255, 0.075);
+      --panel: rgba(255, 255, 255, 0.035);
+      --panel-strong: rgba(255, 255, 255, 0.075);
+      --good: #d9ff66;
+      --bad: #ff5f6d;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    body {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(var(--hair-soft) 1px, transparent 1px),
+        linear-gradient(90deg, var(--hair-soft) 1px, transparent 1px);
+      background-size: 86px 86px;
+      mask-image: radial-gradient(circle at 50% 42%, black, transparent 78%);
+      opacity: 0.38;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      left: 50%;
+      bottom: -48vh;
+      width: 128vw;
+      height: 72vw;
+      pointer-events: none;
+      transform: translateX(-50%);
+      border-top: 1px solid rgba(255, 255, 255, 0.32);
+      border-radius: 50%;
+      box-shadow:
+        0 -18px 0 -17px rgba(255, 255, 255, 0.17),
+        0 -40px 0 -39px rgba(255, 255, 255, 0.1),
+        0 -72px 0 -71px rgba(255, 255, 255, 0.07),
+        0 -118px 0 -117px rgba(255, 255, 255, 0.045);
+      opacity: 0.8;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1240px, 100%);
+      min-height: calc(100vh - 48px);
+      border: 1px solid var(--hair);
+      background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.075), rgba(0, 0, 0, 0) 34%),
+                  linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.005));
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.75);
+      overflow: hidden;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      letter-spacing: -0.04em;
+    }
+
+    .lz-mark {
+      position: relative;
+      width: 34px;
+      height: 42px;
+      flex: 0 0 auto;
+    }
+
+    .lz-mark::before,
+    .lz-mark::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      width: 18px;
+      height: 34px;
+      border: 8px solid var(--ink);
+      border-radius: 99px;
+      transform: translateX(-50%);
+    }
+
+    .lz-mark::before {
+      top: 0;
+      clip-path: inset(0 0 44% 0);
+    }
+
+    .lz-mark::after {
+      bottom: 0;
+      clip-path: inset(44% 0 0 0);
+    }
+
+    .brand-title {
+      font-weight: 760;
+      font-size: 1.08rem;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .brand-title span {
+      color: var(--muted);
+    }
+
+    .welcome {
+      min-height: calc(100vh - 50px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 240ms ease, transform 240ms ease;
+    }
+
+    .welcome.hidden,
+    .focus.hidden {
+      display: none;
+    }
+
+    .top {
+      min-height: 74px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      border-bottom: 1px solid var(--hair);
+    }
+
+    .top > * {
+      padding: 0 22px;
+    }
+
+    .top-center {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      border-left: 1px solid var(--hair);
+      border-right: 1px solid var(--hair);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .top-right {
+      display: flex;
+      justify-content: flex-end;
+      gap: 18px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    kbd {
+      color: var(--ink);
+      border: 1px solid var(--hair);
+      background: var(--panel);
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+    }
+
+    .welcome-main {
+      display: grid;
+      grid-template-columns: 1.06fr 0.94fr;
+      min-height: 640px;
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      align-content: center;
+      padding: clamp(30px, 6vw, 72px);
+      border-right: 1px solid var(--hair);
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: min(620px, 78vw);
+      aspect-ratio: 1;
+      right: -18%;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 50%;
+      box-shadow:
+        inset 0 0 120px rgba(255, 255, 255, 0.02),
+        0 0 90px rgba(255, 255, 255, 0.035);
+    }
+
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow,
+    .section-label {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      margin: 18px 0 20px;
+      font-size: clamp(3.8rem, 8.7vw, 8.2rem);
+      line-height: 0.86;
+      letter-spacing: -0.092em;
+      font-weight: 760;
+      max-width: 760px;
+    }
+
+    .hero h1 span {
+      color: var(--muted);
+      font-weight: 520;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 520px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      margin-top: 34px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .main-btn,
+    .ghost-btn {
+      min-height: 44px;
+      padding: 0 16px;
+      border: 1px solid var(--hair);
+      text-transform: uppercase;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      letter-spacing: 0.06em;
+      transition: transform 130ms ease, border-color 130ms ease, background 130ms ease, color 130ms ease;
+    }
+
+    .main-btn {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    .main-btn:hover,
+    .ghost-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .ghost-btn {
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .ghost-btn:hover {
+      color: var(--ink);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .config {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      min-width: 0;
+    }
+
+    .config-panel {
+      padding: 22px;
+      border-bottom: 1px solid var(--hair);
+    }
+
+    .control-block {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .control-row.answer-mode {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pill {
+      min-height: 40px;
+      padding: 0 11px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--hair);
+      text-transform: uppercase;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      transition: 130ms ease;
+    }
+
+    .pill:hover {
+      color: var(--ink);
+      border-color: rgba(255, 255, 255, 0.32);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .pill.active {
+      background: var(--ink);
+      color: #030303;
+      border-color: var(--ink);
+    }
+
+    .ranges {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      background: rgba(0, 0, 0, 0.22);
+    }
+
+    .setting-card {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--hair);
+      border-right: 1px solid var(--hair);
+    }
+
+    .setting-card:nth-child(2n) {
+      border-right: 0;
+    }
+
+    .setting-card h3 {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 520;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      text-transform: uppercase;
+    }
+
+    .field input {
+      width: 100%;
+      min-height: 38px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--ink);
+      border: 1px solid var(--hair);
+      outline: 0;
+      padding: 0 10px;
+      font-family: var(--mono);
+    }
+
+    .field input:focus {
+      border-color: rgba(255, 255, 255, 0.42);
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .preview {
+      padding: 22px;
+      display: grid;
+      align-content: end;
+      gap: 18px;
+    }
+
+    .preview-card {
+      border: 1px solid var(--hair);
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .preview-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--hair);
+      font-family: var(--mono);
+      text-transform: uppercase;
+    }
+
+    .preview-line:last-child {
+      border-bottom: 0;
+    }
+
+    .preview-line span {
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+    }
+
+    .preview-line strong {
+      color: var(--ink);
+      font-size: 0.86rem;
+      font-weight: 500;
+    }
+
+    .welcome-footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      padding: 14px 20px;
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      border-top: 1px solid var(--hair);
+    }
+
+    .focus {
+      min-height: calc(100vh - 50px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.075), transparent 39%);
+    }
+
+    .focus-top {
+      min-height: 60px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      border-bottom: 1px solid var(--hair-soft);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .focus-top > div {
+      padding: 0 18px;
+    }
+
+    .focus-status {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      color: var(--ink);
+    }
+
+    .focus-status span {
+      color: var(--muted);
+    }
+
+    .focus-right {
+      text-align: right;
+    }
+
+    .focus-stage {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: clamp(26px, 7vw, 80px) 24px;
+      overflow: hidden;
+    }
+
+    .focus-stage::before {
+      content: "";
+      position: absolute;
+      width: min(760px, 90vw);
+      aspect-ratio: 1;
+      border: 1px solid rgba(255, 255, 255, 0.105);
+      border-radius: 50%;
+      box-shadow:
+        inset 0 0 130px rgba(255, 255, 255, 0.02),
+        0 0 100px rgba(255, 255, 255, 0.035);
+      opacity: 0.9;
+    }
+
+    .focus-card {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      justify-items: center;
+      gap: 32px;
+      width: min(880px, 100%);
+    }
+
+    .problem {
+      color: var(--ink);
+      font-family: var(--mono);
+      font-weight: 760;
+      font-size: clamp(5.2rem, 15vw, 14rem);
+      line-height: 0.86;
+      letter-spacing: -0.108em;
+      white-space: nowrap;
+      transition: transform 120ms ease, color 120ms ease, opacity 120ms ease;
+    }
+
+    .problem.good-flash {
+      color: var(--good);
+      transform: translateY(-3px);
+    }
+
+    .problem.bad-flash {
+      color: var(--bad);
+      transform: translateY(3px);
+    }
+
+    .answer-row {
+      width: min(560px, 100%);
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+      padding-bottom: 8px;
+    }
+
+    .answer-row span {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: clamp(2.2rem, 4.5vw, 4rem);
+      line-height: 1;
+    }
+
+    #answer {
+      width: 100%;
+      min-width: 0;
+      background: transparent;
+      border: 0;
+      outline: 0;
+      color: var(--ink);
+      caret-color: var(--ink);
+      font-family: var(--mono);
+      font-weight: 650;
+      font-size: clamp(2.8rem, 7vw, 5.4rem);
+      line-height: 1;
+      padding: 0;
+    }
+
+    #answer::placeholder {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .micro {
+      min-height: 22px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .focus-bottom {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      border-top: 1px solid var(--hair-soft);
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .focus-bottom > div {
+      padding: 0 18px;
+    }
+
+    .focus-actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .focus-actions button {
+      min-height: 34px;
+      padding: 0 12px;
+      font-size: 0.68rem;
+      opacity: 0.72;
+    }
+
+    .focus-actions button:hover {
+      opacity: 1;
+    }
+
+    .last-answer {
+      text-align: right;
+      color: var(--dim);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      z-index: 5;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.show {
+      display: grid;
+    }
+
+    .result-card {
+      width: min(620px, 100%);
+      border: 1px solid var(--hair);
+      background: #050505;
+      box-shadow: 0 28px 120px rgba(0, 0, 0, 0.8);
+    }
+
+    .result-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 18px;
+      border-bottom: 1px solid var(--hair);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    .score-big {
+      padding: 28px 20px 18px;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: clamp(5rem, 16vw, 10rem);
+      line-height: 0.9;
+      letter-spacing: -0.12em;
+      text-align: center;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--hair);
+      border-bottom: 1px solid var(--hair);
+    }
+
+    .result-mini {
+      padding: 15px;
+      border-right: 1px solid var(--hair);
+    }
+
+    .result-mini:last-child {
+      border-right: 0;
+    }
+
+    .result-mini span {
+      display: block;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .result-mini strong {
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .result-actions {
+      padding: 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 980px) {
+      .top {
+        grid-template-columns: 1fr auto;
+      }
+
+      .top-center {
+        display: none;
+      }
+
+      .welcome-main {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        border-right: 0;
+        border-bottom: 1px solid var(--hair);
+        min-height: 520px;
+      }
+
+      .config {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 12px;
+      }
+
+      .app,
+      .welcome,
+      .focus {
+        min-height: calc(100vh - 24px);
+      }
+
+      .top {
+        grid-template-columns: 1fr;
+      }
+
+      .top .brand {
+        min-height: 64px;
+      }
+
+      .top-right {
+        display: none;
+      }
+
+      .hero {
+        padding: 30px 22px;
+        min-height: 470px;
+      }
+
+      .hero h1 {
+        font-size: clamp(3.5rem, 17vw, 5.8rem);
+      }
+
+      .control-row,
+      .ranges {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .preview {
+        align-content: start;
+      }
+
+      .welcome-footer {
+        grid-template-columns: 1fr;
+      }
+
+      .focus-top {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 12px 0;
+        text-align: center;
+      }
+
+      .focus-status {
+        order: -1;
+      }
+
+      .focus-right {
+        text-align: center;
+      }
+
+      .focus-bottom {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px 0;
+        text-align: center;
+      }
+
+      .last-answer {
+        text-align: center;
+      }
+
+      .problem {
+        font-size: clamp(4rem, 19vw, 7rem);
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .result-mini:nth-child(2) {
+        border-right: 0;
+      }
+
+      .result-mini:nth-child(1),
+      .result-mini:nth-child(2) {
+        border-bottom: 1px solid var(--hair);
+      }
+    }
+
+    @media (max-width: 460px) {
+      .control-row,
+      .ranges {
+        grid-template-columns: 1fr;
+      }
+
+      .setting-card {
+        border-right: 0;
+      }
+
+      .hero-actions {
+        display: grid;
+      }
+
+      .focus-status {
+        flex-wrap: wrap;
+      }
+    }
+
+    /* Mobile focus polish */
+    @supports (height: 100dvh) {
+      .app,
+      .welcome,
+      .focus {
+        min-height: calc(100dvh - 48px);
+      }
+
+      @media (max-width: 720px) {
+        .app,
+        .welcome,
+        .focus {
+          min-height: calc(100dvh - 24px);
+        }
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+      }
+
+      body::before {
+        background-size: 54px 54px;
+        opacity: 0.26;
+      }
+
+      body::after {
+        bottom: -34vh;
+        width: 150vw;
+        height: 92vw;
+        opacity: 0.52;
+      }
+
+      .app {
+        width: 100%;
+        border-left: 1px solid var(--hair-soft);
+        border-right: 1px solid var(--hair-soft);
+      }
+
+      .welcome {
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .top .brand {
+        min-height: 58px;
+        padding: 0 16px;
+      }
+
+      .lz-mark {
+        width: 28px;
+        height: 35px;
+      }
+
+      .lz-mark::before,
+      .lz-mark::after {
+        width: 15px;
+        height: 29px;
+        border-width: 6px;
+      }
+
+      .brand-title {
+        font-size: 1rem;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 32px 18px 28px;
+      }
+
+      .hero::before {
+        width: 92vw;
+        right: -38vw;
+        opacity: 0.68;
+      }
+
+      .hero h1 {
+        margin: 14px 0 16px;
+        font-size: clamp(3.15rem, 18vw, 5.2rem);
+        line-height: 0.88;
+        letter-spacing: -0.095em;
+      }
+
+      .hero p {
+        max-width: 100%;
+        font-size: 0.96rem;
+        line-height: 1.48;
+      }
+
+      .hero p strong {
+        color: var(--ink);
+        font-weight: 520;
+      }
+
+      .hero-actions {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .main-btn,
+      .ghost-btn,
+      .pill {
+        min-height: 46px;
+        font-size: 0.78rem;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+
+      .config-panel {
+        padding: 18px 16px;
+      }
+
+      .control-block {
+        gap: 9px;
+      }
+
+      .control-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+      }
+
+      .control-row.answer-mode {
+        grid-template-columns: 1fr;
+      }
+
+      .ranges {
+        grid-template-columns: 1fr;
+      }
+
+      .setting-card {
+        padding: 16px;
+      }
+
+      .range-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .field input {
+        min-height: 44px;
+        font-size: 16px;
+      }
+
+      .preview {
+        padding: 18px 16px 22px;
+      }
+
+      .preview-line {
+        padding: 12px;
+      }
+
+      .welcome-footer {
+        padding: 12px 16px;
+        gap: 6px;
+        font-size: 0.64rem;
+      }
+
+      .focus {
+        grid-template-rows: auto minmax(0, 1fr) auto;
+      }
+
+      .focus-top {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 10px 0 9px;
+      }
+
+      .focus-top > div {
+        padding: 0 12px;
+      }
+
+      .focus-status {
+        order: -1;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0;
+        width: 100%;
+        justify-content: stretch;
+        font-size: 0.68rem;
+      }
+
+      .focus-status div {
+        display: grid;
+        justify-items: center;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .focus-status strong {
+        font-size: 0.82rem;
+        letter-spacing: -0.04em;
+      }
+
+      .focus-right,
+      #focusModeLabel {
+        font-size: 0.62rem;
+        color: var(--dim);
+      }
+
+      .focus-stage {
+        min-height: 0;
+        align-items: center;
+        padding: 18px 12px 22px;
+      }
+
+      .focus-stage::before {
+        width: min(88vw, 430px);
+        opacity: 0.72;
+      }
+
+      .focus-card {
+        gap: 22px;
+      }
+
+      .problem {
+        max-width: 100%;
+        font-size: clamp(3.35rem, 18vw, 6.4rem);
+        line-height: 0.9;
+        letter-spacing: -0.105em;
+        text-align: center;
+        white-space: nowrap;
+        transform-origin: center;
+      }
+
+      .answer-row {
+        width: min(92vw, 430px);
+        gap: 10px;
+        padding-bottom: 7px;
+      }
+
+      .answer-row span {
+        font-size: clamp(2rem, 9vw, 3.3rem);
+      }
+
+      #answer {
+        font-size: 16px;
+        transform: scale(2.35);
+        transform-origin: left center;
+        width: 42.5%;
+        min-height: 48px;
+      }
+
+      .micro {
+        max-width: 90vw;
+        font-size: 0.62rem;
+        line-height: 1.35;
+      }
+
+      .focus-bottom {
+        min-height: auto;
+        gap: 9px;
+        padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+      }
+
+      .focus-bottom > div {
+        padding: 0 12px;
+      }
+
+      .focus-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .focus-actions button {
+        width: 100%;
+        min-height: 42px;
+        padding: 0 8px;
+        opacity: 0.9;
+      }
+
+      #bestLine,
+      .last-answer {
+        font-size: 0.62rem;
+      }
+
+      .last-answer {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .result-card {
+        width: min(100%, 520px);
+      }
+
+      .score-big {
+        font-size: clamp(4.6rem, 27vw, 8rem);
+      }
+
+      .result-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .hero h1 {
+        font-size: clamp(2.9rem, 18vw, 4.2rem);
+      }
+
+      .control-row,
+      .range-row {
+        grid-template-columns: 1fr;
+      }
+
+      .problem {
+        font-size: clamp(2.95rem, 17vw, 5.6rem);
+      }
+
+      .focus-status {
+        font-size: 0.6rem;
+      }
+
+      .focus-status strong {
+        font-size: 0.72rem;
+      }
+
+      #answer {
+        transform: scale(2.05);
+        width: 49%;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .problem {
+        font-size: clamp(2.65rem, 16vw, 4.8rem);
+      }
+
+      .focus-actions {
+        grid-template-columns: 1fr;
+      }
+
+      #answer {
+        transform: scale(1.85);
+        width: 54%;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="welcome" id="welcomeScreen">
+      <header class="top">
+        <div class="brand" aria-label="Quantlet">
+          <div class="lz-mark" aria-hidden="true"></div>
+          <div class="brand-title">Quantlet<span>.</span></div>
+        </div>
+        <div class="top-center">/// configure first · calculate in focus</div>
+        <div class="top-right">
+          <span><kbd>enter</kbd> start</span>
+          <span><kbd>esc</kbd> focus</span>
+        </div>
+      </header>
+
+      <main class="welcome-main">
+        <section class="hero">
+          <div class="eyebrow">[ 01 ] zetamac practice engine</div>
+          <h1>Enter math.<br><span>Stay locked in.</span></h1>
+          <p>
+            Set your time, operators, and ranges here. When you press start,
+            the interface switches into a clean focus mode: no menus, no history feed, no configuration noise.
+            <br><br><strong>Every answer makes the next one faster.</strong>
+          </p>
+          <div class="hero-actions">
+            <button class="main-btn" id="welcomeStartBtn">start focus session</button>
+          </div>
+        </section>
+
+        <section class="config" aria-label="Configuration">
+          <div class="config-panel">
+            <div class="section-label">/// session type</div>
+            <div class="control-block">
+              <div class="control-row" id="timeGroup">
+                <button class="pill active" data-time="120">120s</button>
+                <button class="pill" data-time="60">60s</button>
+                <button class="pill" data-time="300">300s</button>
+                <button class="pill" data-time="infinite">∞</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="config-panel">
+            <div class="section-label">/// answer submit</div>
+            <div class="control-block">
+              <div class="control-row answer-mode" id="submitModeGroup">
+                <button class="pill active" data-submit="enter">enter</button>
+                <button class="pill" data-submit="auto">auto when correct</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="config-panel">
+            <div class="section-label">/// operators</div>
+            <div class="control-block">
+              <div class="control-row" id="opsGroup">
+                <button class="pill active" data-op="+">+</button>
+                <button class="pill active" data-op="-">−</button>
+                <button class="pill active" data-op="*">×</button>
+                <button class="pill active" data-op="/">÷</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="ranges">
+            <div class="setting-card">
+              <h3>[ 01 ] addition</h3>
+              <div class="range-row">
+                <div class="field">
+                  <label for="addMin">min</label>
+                  <input id="addMin" type="number" min="0" value="2" />
+                </div>
+                <div class="field">
+                  <label for="addMax">max</label>
+                  <input id="addMax" type="number" min="1" value="100" />
+                </div>
+              </div>
+            </div>
+            <div class="setting-card">
+              <h3>[ 02 ] subtraction</h3>
+              <div class="range-row">
+                <div class="field">
+                  <label for="subMin">min</label>
+                  <input id="subMin" type="number" min="0" value="2" />
+                </div>
+                <div class="field">
+                  <label for="subMax">max</label>
+                  <input id="subMax" type="number" min="1" value="100" />
+                </div>
+              </div>
+            </div>
+            <div class="setting-card">
+              <h3>[ 03 ] multiplication</h3>
+              <div class="range-row">
+                <div class="field">
+                  <label for="mulMin">min</label>
+                  <input id="mulMin" type="number" min="0" value="2" />
+                </div>
+                <div class="field">
+                  <label for="mulMax">max</label>
+                  <input id="mulMax" type="number" min="1" value="12" />
+                </div>
+              </div>
+            </div>
+            <div class="setting-card">
+              <h3>[ 04 ] division</h3>
+              <div class="range-row">
+                <div class="field">
+                  <label for="divMin">quotient min</label>
+                  <input id="divMin" type="number" min="1" value="2" />
+                </div>
+                <div class="field">
+                  <label for="divMax">quotient max</label>
+                  <input id="divMax" type="number" min="1" value="12" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview">
+            <div class="section-label">/// current setup</div>
+            <div class="preview-card">
+              <div class="preview-line">
+                <span>mode</span>
+                <strong id="previewMode">120s</strong>
+              </div>
+              <div class="preview-line">
+                <span>submit</span>
+                <strong id="previewSubmit">enter</strong>
+              </div>
+              <div class="preview-line">
+                <span>operators</span>
+                <strong id="previewOps">+ − × ÷</strong>
+              </div>
+              <div class="preview-line">
+                <span>best score</span>
+                <strong id="previewBest">0</strong>
+              </div>
+              <div class="preview-line">
+                <span>sample</span>
+                <strong id="previewSample">42 + 19</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="welcome-footer">
+        <span>/// single file · no backend · best score saved locally</span>
+        <span id="welcomeSessionMode">timed session</span>
+      </footer>
+    </section>
+
+    <section class="focus hidden" id="focusScreen" aria-label="Focus practice session">
+      <div class="focus-top">
+        <div id="focusModeLabel">/// timed session</div>
+        <div class="focus-status">
+          <div><span>time</span> <strong id="timeLeft">120</strong></div>
+          <div><span>score</span> <strong id="score">0</strong></div>
+          <div><span>acc</span> <strong id="accuracy">100%</strong></div>
+          <div><span>streak</span> <strong id="streak">0</strong></div>
+          <div><span>pace</span> <strong id="pace">0</strong></div>
+        </div>
+        <div class="focus-right">esc exits · tab restarts</div>
+      </div>
+
+      <main class="focus-stage">
+        <div class="focus-card">
+          <div class="problem" id="problem">0 + 0</div>
+          <label class="answer-row" for="answer">
+            <span>=</span>
+            <input id="answer" inputmode="numeric" enterkeyhint="done" autocomplete="off" placeholder="answer" aria-label="answer" />
+          </label>
+          <div class="micro" id="microcopy">focus mode active</div>
+        </div>
+      </main>
+
+      <div class="focus-bottom">
+        <div id="bestLine">best 0</div>
+        <div class="focus-actions">
+          <button class="ghost-btn" id="finishBtn">finish</button>
+          <button class="ghost-btn" id="resetBtn">restart</button>
+          <button class="ghost-btn" id="exitBtn">exit</button>
+        </div>
+        <div class="last-answer" id="lastAnswer">no answers yet</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay" id="resultOverlay" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="result-card">
+      <div class="result-head">
+        <span id="resultTitle">[ result ]</span>
+        <span id="resultMode">timed</span>
+      </div>
+      <div class="score-big" id="finalScore">0</div>
+      <div class="result-grid">
+        <div class="result-mini">
+          <span>accuracy</span>
+          <strong id="finalAccuracy">100%</strong>
+        </div>
+        <div class="result-mini">
+          <span>attempts</span>
+          <strong id="finalAttempts">0</strong>
+        </div>
+        <div class="result-mini">
+          <span>max streak</span>
+          <strong id="finalStreak">0</strong>
+        </div>
+        <div class="result-mini">
+          <span>best</span>
+          <strong id="finalBest">0</strong>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button class="main-btn" id="againBtn">new focus session</button>
+        <button class="ghost-btn" id="backToSetupBtn">setup</button>
+        <button class="ghost-btn" id="closeOverlayBtn">close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const els = {
+      welcomeScreen: document.getElementById("welcomeScreen"),
+      focusScreen: document.getElementById("focusScreen"),
+      welcomeStartBtn: document.getElementById("welcomeStartBtn"),
+
+      previewMode: document.getElementById("previewMode"),
+      previewSubmit: document.getElementById("previewSubmit"),
+      previewOps: document.getElementById("previewOps"),
+      previewBest: document.getElementById("previewBest"),
+      previewSample: document.getElementById("previewSample"),
+      welcomeSessionMode: document.getElementById("welcomeSessionMode"),
+
+      focusModeLabel: document.getElementById("focusModeLabel"),
+      timeLeft: document.getElementById("timeLeft"),
+      score: document.getElementById("score"),
+      accuracy: document.getElementById("accuracy"),
+      streak: document.getElementById("streak"),
+      pace: document.getElementById("pace"),
+      bestLine: document.getElementById("bestLine"),
+      lastAnswer: document.getElementById("lastAnswer"),
+      problem: document.getElementById("problem"),
+      answer: document.getElementById("answer"),
+      microcopy: document.getElementById("microcopy"),
+
+      resetBtn: document.getElementById("resetBtn"),
+      finishBtn: document.getElementById("finishBtn"),
+      exitBtn: document.getElementById("exitBtn"),
+
+      resultOverlay: document.getElementById("resultOverlay"),
+      resultMode: document.getElementById("resultMode"),
+      finalScore: document.getElementById("finalScore"),
+      finalAccuracy: document.getElementById("finalAccuracy"),
+      finalAttempts: document.getElementById("finalAttempts"),
+      finalStreak: document.getElementById("finalStreak"),
+      finalBest: document.getElementById("finalBest"),
+      againBtn: document.getElementById("againBtn"),
+      backToSetupBtn: document.getElementById("backToSetupBtn"),
+      closeOverlayBtn: document.getElementById("closeOverlayBtn")
+    };
+
+    const inputIds = ["addMin", "addMax", "subMin", "subMax", "mulMin", "mulMax", "divMin", "divMax"];
+    const settingsInputs = Object.fromEntries(inputIds.map(id => [id, document.getElementById(id)]));
+
+    const state = {
+      duration: 120,
+      infinite: false,
+      submitMode: "enter",
+      ops: new Set(["+", "-", "*", "/"]),
+      running: false,
+      ended: false,
+      timer: null,
+      startedAt: null,
+      timeLeft: 120,
+      correct: 0,
+      attempts: 0,
+      streak: 0,
+      maxStreak: 0,
+      current: null,
+      screen: "welcome"
+    };
+
+    const bestKey = "zetazero-focus-best-v3";
+
+    function getBest() {
+      return Number(localStorage.getItem(bestKey) || 0);
+    }
+
+    function setBest(score) {
+      localStorage.setItem(bestKey, String(score));
+      updatePreview();
+    }
+
+    function n(id) {
+      const value = Number(settingsInputs[id].value);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function normalizeRange(min, max) {
+      min = Math.floor(Number(min));
+      max = Math.floor(Number(max));
+      if (!Number.isFinite(min)) min = 0;
+      if (!Number.isFinite(max)) max = min + 1;
+      if (max < min) [min, max] = [max, min];
+      return [min, max];
+    }
+
+    function rand(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function pick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function formatOp(op) {
+      return op === "*" ? "×" : op === "/" ? "÷" : op;
+    }
+
+    function availableOps() {
+      if (state.ops.size === 0) state.ops.add("+");
+      return Array.from(state.ops);
+    }
+
+    function generateProblem() {
+      const op = pick(availableOps());
+      let a, b, answer;
+
+      if (op === "+") {
+        const [min, max] = normalizeRange(n("addMin"), n("addMax"));
+        a = rand(min, max);
+        b = rand(min, max);
+        answer = a + b;
+      }
+
+      if (op === "-") {
+        const [min, max] = normalizeRange(n("subMin"), n("subMax"));
+        a = rand(min, max);
+        b = rand(min, max);
+        if (b > a) [a, b] = [b, a];
+        answer = a - b;
+      }
+
+      if (op === "*") {
+        const [min, max] = normalizeRange(n("mulMin"), n("mulMax"));
+        a = rand(min, max);
+        b = rand(min, max);
+        answer = a * b;
+      }
+
+      if (op === "/") {
+        const [qMin, qMax] = normalizeRange(n("divMin"), n("divMax"));
+        const [dMin, dMax] = normalizeRange(n("mulMin"), n("mulMax"));
+        b = Math.max(1, rand(Math.max(1, dMin), Math.max(1, dMax)));
+        answer = rand(Math.max(1, qMin), Math.max(1, qMax));
+        a = b * answer;
+      }
+
+      state.current = { a, b, op, answer };
+      els.problem.textContent = `${a} ${formatOp(op)} ${b}`;
+      els.answer.value = "";
+      return `${a} ${formatOp(op)} ${b}`;
+    }
+
+    function sampleProblemText() {
+      const previous = state.current;
+      const sample = generateProblem();
+      state.current = previous;
+      return sample;
+    }
+
+    function elapsedSeconds() {
+      return state.startedAt ? Math.max(0, (Date.now() - state.startedAt) / 1000) : 0;
+    }
+
+    function timeDisplay() {
+      if (state.infinite) {
+        const elapsed = Math.floor(elapsedSeconds());
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        return `${minutes}:${String(seconds).padStart(2, "0")}`;
+      }
+
+      return String(Math.max(0, state.timeLeft));
+    }
+
+    function updateStats() {
+      els.timeLeft.textContent = timeDisplay();
+      els.score.textContent = String(state.correct);
+      const acc = state.attempts ? Math.round((state.correct / state.attempts) * 100) : 100;
+      els.accuracy.textContent = `${acc}%`;
+      els.streak.textContent = String(state.streak);
+
+      const elapsed = elapsedSeconds();
+      const pace = elapsed > 0 ? Math.round((state.correct / elapsed) * 60) : 0;
+      els.pace.textContent = String(pace);
+      els.bestLine.textContent = `best ${getBest()}`;
+      els.focusModeLabel.textContent = state.infinite ? "/// infinite session" : `/// ${state.duration}s timed session`;
+    }
+
+    function updatePreview(newSample = false) {
+      const ops = Array.from(state.ops).map(formatOp).join(" ");
+      els.previewOps.textContent = ops || "+";
+      els.previewBest.textContent = String(getBest());
+      els.previewMode.textContent = `${state.infinite ? "∞" : state.duration + "s"}`;
+      els.previewSubmit.textContent = state.submitMode === "auto" ? "auto when correct" : "enter";
+      els.welcomeSessionMode.textContent = state.infinite ? "infinite session" : "timed session";
+      if (newSample || !els.previewSample.textContent) {
+        els.previewSample.textContent = sampleProblemText();
+      }
+    }
+
+    function flash(kind) {
+      els.problem.classList.remove("good-flash", "bad-flash");
+      void els.problem.offsetWidth;
+      els.problem.classList.add(kind === "ok" ? "good-flash" : "bad-flash");
+      setTimeout(() => els.problem.classList.remove("good-flash", "bad-flash"), 120);
+    }
+
+    function resetSessionState() {
+      clearInterval(state.timer);
+      state.running = false;
+      state.ended = false;
+      state.timer = null;
+      state.startedAt = null;
+      state.timeLeft = state.infinite ? 0 : state.duration;
+      state.correct = 0;
+      state.attempts = 0;
+      state.streak = 0;
+      state.maxStreak = 0;
+      els.lastAnswer.textContent = "no answers yet";
+      els.microcopy.textContent = state.submitMode === "auto"
+        ? "auto-submit active: correct answer advances instantly"
+        : "enter submits the answer";
+    }
+
+    function showWelcome() {
+      clearInterval(state.timer);
+      state.running = false;
+      state.ended = false;
+      state.timer = null;
+      state.screen = "welcome";
+      els.focusScreen.classList.add("hidden");
+      els.welcomeScreen.classList.remove("hidden");
+      els.resultOverlay.classList.remove("show");
+      updatePreview(true);
+    }
+
+    function enterFocus() {
+      state.screen = "focus";
+      els.welcomeScreen.classList.add("hidden");
+      els.focusScreen.classList.remove("hidden");
+      els.resultOverlay.classList.remove("show");
+      startSession();
+    }
+
+    function startSession() {
+      resetSessionState();
+      generateProblem();
+      state.running = true;
+      state.startedAt = Date.now();
+      updateStats();
+      setTimeout(() => {
+        els.answer.focus({ preventScroll: true });
+        els.answer.scrollIntoView({ block: "center", inline: "nearest" });
+      }, 40);
+
+      state.timer = setInterval(() => {
+        if (state.infinite) {
+          updateStats();
+          return;
+        }
+
+        const elapsed = Math.floor(elapsedSeconds());
+        state.timeLeft = Math.max(0, state.duration - elapsed);
+        updateStats();
+
+        if (state.timeLeft <= 0) {
+          endSession("timed");
+        }
+      }, 200);
+    }
+
+    function restartFocus() {
+      els.resultOverlay.classList.remove("show");
+      startSession();
+    }
+
+    function endSession(mode = state.infinite ? "infinite" : "manual") {
+      if (state.ended) return;
+      clearInterval(state.timer);
+      state.running = false;
+      state.ended = true;
+      if (!state.infinite) state.timeLeft = 0;
+
+      const best = getBest();
+      if (state.correct > best) setBest(state.correct);
+
+      const accuracy = state.attempts ? Math.round((state.correct / state.attempts) * 100) : 100;
+      els.resultMode.textContent = mode;
+      els.finalScore.textContent = String(state.correct);
+      els.finalAccuracy.textContent = `${accuracy}%`;
+      els.finalAttempts.textContent = String(state.attempts);
+      els.finalStreak.textContent = String(state.maxStreak);
+      els.finalBest.textContent = String(getBest());
+      els.resultOverlay.classList.add("show");
+      updateStats();
+    }
+
+    function submitAnswer() {
+      if (!state.running || state.ended || !state.current) return;
+
+      const raw = els.answer.value.trim();
+      if (raw === "" || raw === "-") return;
+
+      const given = Number(raw);
+      if (!Number.isFinite(given)) return;
+
+      const textProblem = `${state.current.a}${formatOp(state.current.op)}${state.current.b}`;
+      const ok = given === state.current.answer;
+
+      state.attempts += 1;
+      if (ok) {
+        state.correct += 1;
+        state.streak += 1;
+        state.maxStreak = Math.max(state.maxStreak, state.streak);
+      } else {
+        state.streak = 0;
+      }
+
+      els.lastAnswer.textContent = ok
+        ? `last ${textProblem} = ${state.current.answer}`
+        : `last ${textProblem}: ${raw} / ${state.current.answer}`;
+
+      flash(ok ? "ok" : "bad");
+      generateProblem();
+      updateStats();
+    }
+
+    document.getElementById("timeGroup").addEventListener("click", e => {
+      const btn = e.target.closest("[data-time]");
+      if (!btn) return;
+
+      document.querySelectorAll("[data-time]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      if (btn.dataset.time === "infinite") {
+        state.infinite = true;
+        state.duration = null;
+      } else {
+        state.infinite = false;
+        state.duration = Number(btn.dataset.time);
+      }
+
+      state.timeLeft = state.infinite ? 0 : state.duration;
+      updatePreview(true);
+    });
+
+    document.getElementById("submitModeGroup").addEventListener("click", e => {
+      const btn = e.target.closest("[data-submit]");
+      if (!btn) return;
+
+      document.querySelectorAll("[data-submit]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.submitMode = btn.dataset.submit;
+      updatePreview(false);
+    });
+
+    document.getElementById("opsGroup").addEventListener("click", e => {
+      const btn = e.target.closest("[data-op]");
+      if (!btn) return;
+
+      const op = btn.dataset.op;
+      if (state.ops.has(op)) {
+        if (state.ops.size > 1) {
+          state.ops.delete(op);
+          btn.classList.remove("active");
+        }
+      } else {
+        state.ops.add(op);
+        btn.classList.add("active");
+      }
+
+      updatePreview(true);
+    });
+
+    inputIds.forEach(id => {
+      settingsInputs[id].addEventListener("change", () => updatePreview(true));
+    });
+    els.welcomeStartBtn.addEventListener("click", enterFocus);
+    els.resetBtn.addEventListener("click", restartFocus);
+    els.finishBtn.addEventListener("click", () => {
+      if (state.running || state.attempts > 0) endSession(state.infinite ? "infinite" : "manual");
+    });
+    els.exitBtn.addEventListener("click", showWelcome);
+    els.againBtn.addEventListener("click", restartFocus);
+    els.backToSetupBtn.addEventListener("click", showWelcome);
+    els.closeOverlayBtn.addEventListener("click", () => {
+      els.resultOverlay.classList.remove("show");
+      if (state.screen === "focus") els.answer.focus();
+    });
+
+    els.answer.addEventListener("input", () => {
+      if (state.submitMode !== "auto" || !state.running || state.ended || !state.current) return;
+
+      const raw = els.answer.value.trim();
+      if (raw === "" || raw === "-") return;
+
+      const given = Number(raw);
+      if (Number.isFinite(given) && given === state.current.answer) {
+        submitAnswer();
+      }
+    });
+
+    els.answer.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (state.submitMode === "enter") submitAnswer();
+      }
+    });
+
+    document.addEventListener("keydown", e => {
+      const tag = document.activeElement && document.activeElement.tagName;
+      const typingInSetup = state.screen === "welcome" && (tag === "INPUT");
+
+      if (e.key === "Enter" && state.screen === "welcome" && !typingInSetup) {
+        e.preventDefault();
+        enterFocus();
+      }
+
+      if (e.key === "Enter" && state.ended && state.screen === "focus") {
+        e.preventDefault();
+        restartFocus();
+      }
+
+      if (e.key === "Tab" && state.screen === "focus") {
+        e.preventDefault();
+        restartFocus();
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (state.screen === "focus") showWelcome();
+        else enterFocus();
+      }
+    });
+
+    updatePreview(true);
+  </script>
+</body>
+</html>
