@@ -1,5 +1,7 @@
 # Quantlet
 
+https://whoisclownhere.github.io/Quantlet-mental-math-website/
+
 **Quantlet** is a focused mental math trainer for fast arithmetic, quick calculation, and numerical fluency.
 
 It is inspired by the clean practice flow of typing trainers, but built for arithmetic. Configure your math pool, start a session, and enter a full-focus mode where every problem trains speed, accuracy, and confidence with numbers.
